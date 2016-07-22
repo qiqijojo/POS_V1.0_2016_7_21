@@ -137,7 +137,18 @@ describe("calculateSubtotal",function(){
 
 describe("calculateAlltotal",function(){
     it("should return the alltotal",function(){
-        let alltotals = 21;
+        let subtotals = [
+            {
+                amount:10,
+                barcode: 'ITEM0',
+                name: '可口可乐',
+                unit: '瓶',
+                price: 3.00,
+                type:'BUY_TWO_GET_ONE_FREE',
+                promoteItemAmount:7,
+                subtotal:21
+            }];
+        let alltotal= 21;
         expect(calculateAlltotal(subtotals)).toEqual(alltotal);
     });
 });

@@ -9,29 +9,27 @@ function formatTags(tags){
         };
     });
 }
-let barcodes = formatTags(tags);
+let barcodes= formatTags(tags);
+
 function mergeBarcodes(barcodes){
     let mergedBarcodes = barcodes.reduce(function(cur,old){
-        let existItem = cur.find(function(item){
-            return item.barcode === old.barcode;
+        let existItems = cur.find(function(item){
+            return item.barcode === old.barcode
         });
-        if(existItem){
-            existItem.amount += old.amount;
+        if(existItems){
+            existItems.amount += old.amount;
         }else{
             cur.push(old);
         }
         return cur;
     },[]);
-    return mergedBarcodes;
-}
-let mergedBarcodes = mergeBarcodes(barcodes);
-console.log(JSON.stringify(mergedBarcodes,null,4));
-
-let allItems = loadAllItems();
+        return mergedBarcodes;
+    }
+    let allItems = loadAllItems();
 function matchCartItems(mergedBarcodes){
     let cartItems = [];
-    for(let i = 0;i<mergedBarcodes.length;i++){
-        for(var j=0;j<allItems.length;j++){
+    for(let i=0;i<mergedBarcodes.length;i++){
+        for(let j=0;j<allItems.length;j++){
             if(mergedBarcodes[i].barcode === allItems[j].barcode){
                 cartItems.push(Object.assign({},allItems[j],{amount:mergedBarcodes[i].amount}));
             }
@@ -39,27 +37,21 @@ function matchCartItems(mergedBarcodes){
     }
     return cartItems;
 }
-let cartItems = matchCartItems(mergedBarcodes);
-console.log(cartItems);
-
 let allPromotions = loadPromotions();
 function calculatePromotions(cartItems){
     let promotedItems = [];
-    for(let k = 0;k<cartItems.length;k++){
-        promotedItems.push(Object.assign({},cartItems[k],{type:"none"}));
-        for(let i = 0;i<allPromotions.length;i++) {
-            for(let j = 0; j < allPromotions[i].barcodes.length; j++) {
-                if(promotedItems[k].barcode === allPromotions[i].barcodes[j]){
-                    promotedItems[k].type = allPromotions[i].type;
+    for(let i=0;i<cartItems.length;i++){
+        promotedItems.push(Object.assign({},cartItems[i],{type:"none"}));
+        for(let j = 0;j<allPromotions.length;j++){
+            for(let k = 0;k<allPromotions[j].barcodes.length;k++){
+                if(promotedItems[i].barcode === allPromotions[j].barcodes[k]){
+                    promotedItems[i].type = allPromotions[j].type;
                 }
             }
         }
     }
-
     return promotedItems;
 }
-let promotedItems = calculatePromotions(cartItems);
-console.log(promotedItems);
 
 function promoteAmount(promotedItems){
     let promotedItemsAmounts = [];
@@ -136,4 +128,5 @@ function printReceipt(){
     document.write("节省："+promotion);
 }
 console.log(printReceipt())
+
 
