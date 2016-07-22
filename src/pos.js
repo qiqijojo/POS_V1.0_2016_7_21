@@ -1,5 +1,6 @@
+
 'use strict';
-let tags = ["ITEM0-5","ITEM0-5"];
+
 function formatTags(tags){
     return tags.map(function(tag){
         let info = tag.split("-");
@@ -9,27 +10,27 @@ function formatTags(tags){
         };
     });
 }
-let barcodes= formatTags(tags);
 
 function mergeBarcodes(barcodes){
     let mergedBarcodes = barcodes.reduce(function(cur,old){
-        let existItems = cur.find(function(item){
-            return item.barcode === old.barcode
+        let existItem = cur.find(function(item){
+            return item.barcode === old.barcode;
         });
-        if(existItems){
-            existItems.amount += old.amount;
+        if(existItem){
+            existItem.amount += old.amount;
         }else{
             cur.push(old);
         }
         return cur;
     },[]);
-        return mergedBarcodes;
-    }
-    let allItems = loadAllItems();
+    return mergedBarcodes;
+}
+
+
 function matchCartItems(mergedBarcodes){
     let cartItems = [];
-    for(let i=0;i<mergedBarcodes.length;i++){
-        for(let j=0;j<allItems.length;j++){
+    for(let i = 0;i<mergedBarcodes.length;i++){
+        for(var j=0;j<allItems.length;j++){
             if(mergedBarcodes[i].barcode === allItems[j].barcode){
                 cartItems.push(Object.assign({},allItems[j],{amount:mergedBarcodes[i].amount}));
             }
@@ -37,21 +38,22 @@ function matchCartItems(mergedBarcodes){
     }
     return cartItems;
 }
-let allPromotions = loadPromotions();
+
 function calculatePromotions(cartItems){
     let promotedItems = [];
-    for(let i=0;i<cartItems.length;i++){
-        promotedItems.push(Object.assign({},cartItems[i],{type:"none"}));
-        for(let j = 0;j<allPromotions.length;j++){
-            for(let k = 0;k<allPromotions[j].barcodes.length;k++){
-                if(promotedItems[i].barcode === allPromotions[j].barcodes[k]){
-                    promotedItems[i].type = allPromotions[j].type;
+    for(let k = 0;k<cartItems.length;k++){
+        promotedItems.push(Object.assign({},cartItems[k],{type:"none"}));
+        for(let i = 0;i<allPromotions.length;i++) {
+            for(let j = 0; j < allPromotions[i].barcodes.length; j++) {
+                if(promotedItems[k].barcode === allPromotions[i].barcodes[j]){
+                    promotedItems[k].type = allPromotions[i].type;
                 }
             }
         }
     }
     return promotedItems;
 }
+
 
 function promoteAmount(promotedItems){
     let promotedItemsAmounts = [];
@@ -66,8 +68,7 @@ function promoteAmount(promotedItems){
     }
     return promotedItemsAmounts;
 }
-let promotedItemsAmounts = promoteAmount(promotedItems);
-console.log(promotedItemsAmounts);
+
 
 function calculateSubtotal(promotedItemsAmounts ){
     let subtotals = [];
@@ -76,8 +77,6 @@ function calculateSubtotal(promotedItemsAmounts ){
     }
     return subtotals;
 }
-let subtotals = calculateSubtotal(promotedItemsAmounts );
-console.log(subtotals);
 
 function calculateAlltotal(subtotals){
     let alltotal = 0;
@@ -86,8 +85,7 @@ function calculateAlltotal(subtotals){
     }
     return alltotal;
 }
-let alltotal = calculateAlltotal(subtotals);
-console.log(alltotal);
+
 
 
 function calculatePreSubtotal(cartItems){
@@ -97,8 +95,6 @@ function calculatePreSubtotal(cartItems){
     }
     return preSubtotals;
 }
-let preSubtotals = calculatePreSubtotal(cartItems);
-console.log(preSubtotals);
 
 
 
@@ -109,24 +105,31 @@ function calculatePreAlltotal(preSubtotals){
     }
     return preAlltotal;
 }
-let preAlltotal = calculatePreAlltotal(preSubtotals);
-console.log(preAlltotal);
-
 function calculatePromotionMoney(preAlltotal,alltotal){
     let promotion = preAlltotal - alltotal;
     return promotion;
 }
-let promotion = calculatePromotionMoney(preAlltotal,alltotal)
-console.log(promotion);
+let allItems = loadAllItems();
+let allPromotions = loadPromotions();
 
 function printReceipt(){
-    document.write("***<没钱赚商店>***<br>");
+    let tags = ["ITEM0-5","ITEM0-5"];
+    let barcodes = formatTags(tags);
+    let mergedBarcodes = mergeBarcodes(barcodes);
+    let cartItems = matchCartItems(mergedBarcodes);
+    let promotedItems = calculatePromotions(cartItems);
+    let promotedItemsAmounts = promoteAmount(promotedItems);
+    let subtotals = calculateSubtotal(promotedItemsAmounts );
+    let alltotal = calculateAlltotal(subtotals);
+    let preSubtotals = calculatePreSubtotal(cartItems);
+    let preAlltotal = calculatePreAlltotal(preSubtotals);
+    let promotion = calculatePromotionMoney(preAlltotal,alltotal);
+
+    console.log("***<没钱赚商店>***<br>");
     for(let i=0;i< subtotals.length;i++){
-        document.write("名称："+subtotals[i].name+"，"+"数量："+subtotals[i].promoteItemAmount+":"+subtotals[i].unit+","+"单价："+subtotals[i].price+"（元）"+"，"+"小计:"+subtotals[i].subtotal+"（元)<br>");
+        console.log("名称："+subtotals[i].name+"，"+"数量："+subtotals[i].promoteItemAmount+":"+subtotals[i].unit+","+"单价："+subtotals[i].price+"（元）"+"，"+"小计:"+subtotals[i].subtotal+"（元)\n\n");
     }
-    document.write("总计："+alltotal+"<br>");
-    document.write("节省："+promotion);
+    console.log("总计："+alltotal+"\n\n");
+    console.log("节省："+promotion);
 }
-console.log(printReceipt())
-
-
+printReceipt();
